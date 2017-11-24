@@ -1,0 +1,3 @@
+# Depression-Diagnosis
+Depression is a disease that affects people of all ages. The disorder goes undiagnosed for many with people refusing care or even receiving improper diagnosis. It is extremely important to understand the factors that lead to the breakdown of the psyche.
+	Through this research, I intend to dig deeper into the social sources of distress and their effect on patients across multiple age brackets. There may be social constructs which affect people with depression in different ways based on their age category. I intend to look at variables such as education levels, family status, activity levels, etc. and analyze their contribution to whether someone was diagnosed with depression.
