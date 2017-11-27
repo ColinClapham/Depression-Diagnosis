@@ -1,0 +1,179 @@
+---
+title: "Key Indicators for Depression Based on Age Groups"
+author: "Colin Clapham"
+date: "2017/11/30"
+output:
+  pdf_document: default
+  html_document: default
+---
+#Project Background
+
+Depression is a mental health disorder that affects the daily lives of those suffering from the illness. In the US alone, it is estimated that over three million people are diagnosed with depression every year. While the disorder can cause significant impairment to daily life, it has become very common and treatments are available.
+Causes of depression have been linked to biological, psychological, and social sources of distress. Trauma from one of these categories can lead to many symptoms, most commonly a depressed mood combined with a lack of interest in daily activities. Most often, treatment involves medication and/or therapy. 
+
+
+#Research Objectives
+
+Depression is a disease that affects all ages from early teens all the way to the end of life. The disorder also goes undiagnosed for many with a number of people refusing care or even receiving improper diagnosis. It is extremely important to understand the factors that lead to the breakdown of the psyche.
+Through this research, I intend to dig deeper into the social sources of distress and their effect on patients across multiple age brackets. There may be social constructs which affect people with depression in different ways based on their age category. I intend to look at variables such as education levels, family status, activity levels, etc. and analyze their contribution to whether someone was diagnosed with depression.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+```{r, warning=FALSE, include=FALSE}
+library(dplyr)
+library(plyr)
+library(ggplot2)
+#Read in the csv for each year
+P16 <- read.csv("2016.csv")
+P15 <- read.csv("2015.csv")
+P14 <- read.csv("2014.csv")
+P13 <- read.csv("2013.csv")
+P12 <- read.csv("2012.csv")
+P11 <- read.csv("2011.csv")
+P10 <- read.csv("2010.csv")
+P9 <- read.csv("2009.csv")
+P8 <- read.csv("2008.csv")
+P7 <- read.csv("2007.csv")
+```
+
+
+
+```{r,warning=FALSE,include=FALSE}
+#Select the relevant variables from each data frame
+N16 <- select(P16,SRVY_YR, SEX, AGE_P,CDCMSTAT,PARENTS,LAHCA17,EDUC1,WRKHRS2)
+N15 <- select(P15,SRVY_YR, SEX, AGE_P,CDCMSTAT,PARENTS,LAHCA17,EDUC1,WRKHRS2)
+N14 <- select(P14,SRVY_YR, SEX, AGE_P,CDCMSTAT,PARENTS,LAHCA17,EDUC1,WRKHRS2)
+N13 <- select(P13,SRVY_YR, SEX, AGE_P,CDCMSTAT,PARENTS,LAHCA17,EDUC1,WRKHRS2)
+N12 <- select(P12,SRVY_YR, SEX, AGE_P,CDCMSTAT,PARENTS,LAHCA17,EDUC1,WRKHRS2)
+N11 <- select(P11,SRVY_YR, SEX, AGE_P,CDCMSTAT,PARENTS,LAHCA17,EDUC1,WRKHRS2)
+N10 <- select(P10,SRVY_YR, SEX, AGE_P,CDCMSTAT,PARENTS,LAHCA17,EDUC1,WRKHRS2)
+N9 <- select(P9,SRVY_YR, SEX, AGE_P,CDCMSTAT,PARENTS,LAHCA17,EDUC1,WRKHRS2)
+N8 <- select(P8,SRVY_YR, SEX, AGE_P,CDCMSTAT,PARENTS,LAHCA17,EDUC1,WRKHRS2)
+N7 <- select(P7,SRVY_YR, SEX, AGE_P,CDCMSTAT,PARENTS,LAHCA17,EDUC1,WRKHRS2)
+```
+
+
+
+```{r,warning=FALSE, include = FALSE}
+#Bind each year together into one master data frame and add a column for age bracket
+Master <- rbind(N16,N15,N14,N13,N12,N11,N10,N9,N8,N7)
+Master <- mutate(Master, Age_Range = floor(AGE_P/10)*10)
+Master <- Master[which(Master$LAHCA17=='1' | Master$LAHCA17=='2'),]
+Master <- mutate(Master, Diagnosis = LAHCA17-1)
+
+#Select only patients diagnosed with depression and add a column for age bracket
+Depress <- Master[which(Master$LAHCA17=='1'),]
+Depress <- mutate(Depress, Age_Range = floor(AGE_P/10)*10)
+```
+
+###Distribution of Positive versus Negative Diagnosis
+
+```{r}
+Diag <- hist(Master$LAHCA17,xlab = "Diagnosis of Depression", main = "Breakdown of Diagnosis", breaks = 2, labels = c("Positive", "Negative"))
+Diag$density = Diag$counts/sum(Diag$counts)*100
+plot(Diag,freq=FALSE,xlab = "Diagnosis of Depression", main = "Breakdown of Diagnosis", labels = c("Positive", "Negative"))
+```
+
+The histogram indicates that out of our ~686,000 patients, around 1/7 of them have a diagnosis of depression. Compared to the diagnosis rate of the United States, our sample closely matches the population parameter of around 1% diagnosed per year. 
+
+###Distribution of Gender (Positive and Negative Diagnosis)
+
+```{r,warning=FALSE}
+GenderFull <- hist(Master$SEX, breaks = 2, main = "Distribution by Sex", xlab = "Gender", labels = c("Male", "Female"))
+GenderFull$density = GenderFull$counts/sum(GenderFull$counts)*100
+plot(GenderFull,freq=FALSE,main = "Distribution by Sex", xlab = "Gender", labels = c("Male", "Female"))
+
+GenderSub <- hist(Depress$SEX, breaks = 2, main = "Distribution by Sex (Pos Diagnosis Only)", xlab = "Gender",labels = c("Male", "Female"))
+GenderSub$density = GenderSub$counts/sum(GenderSub$counts)*100
+plot(GenderSub,freq=FALSE,main = "Distribution by Sex (Pos Diagnosis Only)", xlab = "Gender", labels = c("Male", "Female"))
+
+```
+
+According to the Anxiety and Depression Association of America, women are twice as likely to be depressed as men. The subset of data looking only at those with a diagnosis reflects a truer representation of the population of those with depression than the master survey.
+
+###Distribution of Age (Positive and Negative Diagnosis)
+
+```{r,warning = FALSE}
+hist(Master$AGE_P, breaks = 8, main = "Distribution by Age", xlab = "Age")
+
+hist(Depress$AGE_P, breaks = 8, main = "Distribution by Age (Pos Diagnosis Only)", xlab = "Age")
+```
+
+Median onset age of Major Depressive Disorder is 32.5. WHile the master survey reflects an even spread of ages across the data, the subset of those diagnosed with depression includes older individual that may be a close approximation of the overall population. 
+
+####Social Factors
+Given the nature of this study, I will be digging into social factors that may contribute to a diagnosis of depression. These include marriage status, family status, social limitations, education level, and job status.
+
+###Distribution of Marital Status (Positive and Negative Diagnosis)
+
+```{r,warning=FALSE}
+MarrFul <- hist(Master$CDCMSTAT, breaks = 6, xlim = c(1,7), main = "Distribution by Marital Status", xlab = "Marital Status", labels = c("Separated", "Divorced", "Married", "Single", "Widowed", "Unknown"))
+MarrFul$density = MarrFul$counts/sum(MarrFul$counts)*100
+plot(MarrFul,freq=FALSE, xlim = c(1,7), main = "Distribution by Marital Status", xlab = "Marital Status", labels = c("Separated", "Divorced", "Married", "Single", "Widowed", "Unknown"))
+
+MarrDep <- hist(Depress$CDCMSTAT, breaks = 6, xlim = c(1,7), main = "Distribution by Marital Status(Pos Diagnosis Only)", xlab = "Marital Status",labels = c("Separated", "Divorced", "Married", "Single", "Widowed", "Unknown"))
+MarrDep$density = MarrDep$counts/sum(MarrDep$counts)*100
+plot(MarrDep,freq=FALSE, xlim = c(1,7), main = "Distribution by Marital Status (Pos Diagnosis Only)", xlab = "Marital Status", labels = c("Separated", "Divorced", "Married", "Single", "Widowed", "Unknown"))
+
+```
+
+#Fitting a Model
+
+```{r}
+library(lme4)
+library(arm)
+
+Multi <- lmer(Diagnosis~SEX+CDCMSTAT+PARENTS+EDUC1+WRKHRS2+(1+CDCMSTAT|Age_Range)+(1+PARENTS|Age_Range)+(1+EDUC1|Age_Range)+(1+WRKHRS2|Age_Range), data = Master)
+display(Multi)
+coef(Multi)$Age_Range
+```
+
+Fitting a multi-level, mixed-effect model, we can see that the possibility of diagnosis of depression varies by age. In addition, the social factors observed effect different ages to varying degrees. People in their 50's seem to have the highest chance of being diagnosed with depression (independent of social factors). This may have something to do with the effect of a mid-life crisis. In fact, of the four social factors observed, people in their fifties are effected to the greatest degree by two of the four (education level and hours worked per week). For the other social factors, people in their 60's seem most effected by relationship status while people in their 40's are most effected by family status.
+
+#Graphs of Social Effects and  Depression
+
+```{r}
+#A. Effect of Work Hours
+ggplot(Master)+aes(x=Diagnosis,y=WRKHRS2)+geom_line()+
+geom_smooth(method="lm",aes(group=1))+ylab("Hours Worked")+facet_grid(.~Age_Range)+theme(axis.text.x = element_blank())
+
+#B. Effect of Relationship Status
+ggplot(Master)+aes(x=Diagnosis,y=CDCMSTAT)+geom_line()+
+geom_smooth(method="lm",aes(group=1))+ylab("Relationship Status")+facet_grid(.~Age_Range)+theme(axis.text.x = element_blank())
+#1 = Separated
+#2 = Divorced
+#3 = Married
+#4 = Single
+#5 = Widowed
+#9 = Unknown
+
+#C. Effect of Family Status
+ggplot(Master)+aes(x=Diagnosis,y=PARENTS)+geom_line()+
+geom_smooth(method="lm",aes(group=1))+ylab("Family Status")+facet_grid(.~Age_Range)+theme(axis.text.x = element_blank())
+#1 = Mother, no father
+#2 = Father, no mother
+#3 = Mother and Father
+#4 = neither
+
+#D. Effect of Education Level
+ggplot(Master)+aes(x=Diagnosis,y=EDUC1)+geom_line()+
+geom_smooth(method="lm",aes(group=1))+ylab("Education Level")+facet_grid(.~Age_Range)+theme(axis.text.x = element_blank())
+
+#E. Effect of Gender
+ggplot(Master)+aes(x=Diagnosis,y=SEX)+geom_line()+
+geom_smooth(method="lm",aes(group=1))+ylab("Gender")+facet_grid(.~Age_Range)+theme(axis.text.x = element_blank())
+```
+
+A. The amount of hours worked increases into the 40's and begins to drop off at age 50 and beyond. This is expected as people begin to enter retirement age. The slopes begin more steep as age increases with work hours having a greater effect on depression diagnosis. At ages in the 40's and 50's, we see the steepest slope (people in their teens and 80's have smaller sample sizes).
+
+B. As people approach mid-life, they are more likely to be in (or have been) in a relationship. Younger people tend to be single while older people tend to be widowed. Relationship status seems to have the biggest positive effect in people in their 30's and 80's. 
+
+C. Initially, I thought that parental status would have the greatest effect on diagnosis of depression, especially among younger patients. However, given the data, it appears that parental status does little to change the probability of receiving a diagnois of depression. The data trends in an expected fashion (older respondents have lost their father and mother by the time they have taken the survey).
+
+D. Education level seems to have a greater effect on people in their 30's and 40's. This may relate to someone in their 30's who is still in school not knowing what they want to do for a career. Interestingly, education level in the 40's age bracket decreases depression diagnosis. It is possible people in their 40's may be pursuing further education to revitalize or change careers. 
+
+E. As age increases, it becomes more porabable that women receive a positive diagnosis of depression. The biggest jump (besides 70's to 80's) appears to be from the 20's to 30's. This may be due to issues with fertility and the closing window to have children.
